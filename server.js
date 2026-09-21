@@ -65,6 +65,86 @@ CREATE TABLE IF NOT EXISTS audit(
 );
 `);
 
+db.exec(`
+CREATE TABLE IF NOT EXISTS sessions(
+  sid TEXT PRIMARY KEY,
+  sess TEXT NOT NULL,
+  expires INTEGER
+);
+`);
+
+class SQLiteSessionStore extends session.Store {
+  constructor(database){
+    super();
+    this.db=database;
+  }
+
+  get(sid,cb){
+    try{
+      const row=this.db.prepare(
+        "SELECT sess,expires FROM sessions WHERE sid=?"
+      ).get(sid);
+
+      if(!row) return cb(null,null);
+
+      if(row.expires && row.expires < Date.now()){
+        this.db.prepare(
+          "DELETE FROM sessions WHERE sid=?"
+        ).run(sid);
+        return cb(null,null);
+      }
+
+      cb(null,JSON.parse(row.sess));
+    }catch(e){
+      cb(e);
+    }
+  }
+
+  set(sid,sess,cb){
+    try{
+      const expires=sess.cookie?.expires
+        ? new Date(sess.cookie.expires).getTime()
+        : null;
+
+      this.db.prepare(`
+        INSERT INTO sessions(sid,sess,expires)
+        VALUES(?,?,?)
+        ON CONFLICT(sid) DO UPDATE SET
+          sess=excluded.sess,
+          expires=excluded.expires
+      `).run(sid,JSON.stringify(sess),expires);
+
+      cb(null);
+    }catch(e){
+      cb(e);
+    }
+  }
+
+  destroy(sid,cb){
+    try{
+      this.db.prepare("DELETE FROM sessions WHERE sid=?").run(sid);
+      cb(null);
+    }catch(e){
+      cb(e);
+    }
+  }
+
+  touch(sid,sess,cb){
+    try{
+      const expires=sess.cookie?.expires
+        ? new Date(sess.cookie.expires).getTime()
+        : null;
+
+      this.db.prepare(
+        "UPDATE sessions SET expires=? WHERE sid=?"
+      ).run(expires,sid);
+
+      cb(null);
+    }catch(e){
+      cb(e);
+    }
+  }
+}
 const admin=db.prepare("SELECT id FROM users WHERE username='admin'").get();
 if(!admin){
   db.prepare("INSERT INTO users(name,username,password_hash,role,status) VALUES(?,?,?,?,?)")
@@ -74,9 +154,16 @@ if(!admin){
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(session({
- secret:process.env.SESSION_SECRET||"cambia-esta-clave-en-produccion",
- resave:false,saveUninitialized:false,
- cookie:{httpOnly:true,sameSite:"lax",secure:process.env.NODE_ENV==="production",maxAge:8*60*60*1000}
+  secret:process.env.SESSION_SECRET||"cambia-esta-clave-en-produccion",
+  store:new SQLiteSessionStore(db),
+  resave:false,
+  saveUninitialized:false,
+  cookie:{
+    httpOnly:true,
+    sameSite:"lax",
+    secure:process.env.NODE_ENV==="production",
+    maxAge:8*60*60*1000
+  }
 }));
 app.use(express.static(__dirname));
 
