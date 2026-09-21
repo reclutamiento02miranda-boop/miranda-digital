@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Miranda Digital</title>
+<style>
+:root{--g:#126b3b;--g2:#0d512d;--y:#f2c94c;--bg:#f3f7f3;--line:#dce8df;--mut:#718078}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Segoe UI,sans-serif;background:var(--bg);color:#193326}button,input,select{font:inherit}
+.hidden{display:none!important}.auth{min-height:100vh;display:grid;place-items:center;background:linear-gradient(135deg,#0e5d34,#1c814b)}.box{width:min(430px,92%);background:#fff;border-radius:22px;padding:34px;box-shadow:0 25px 70px #062d1838}.brand{font-weight:900;font-size:27px;color:var(--g)}.brand span{color:#c69c14}
+.field{margin:14px 0}.field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px}.field input{width:100%;padding:12px;border:1px solid #ccd9cf;border-radius:10px}.primary{width:100%;background:var(--g);color:#fff;border:0;border-radius:10px;padding:12px;font-weight:800;cursor:pointer}.link{width:100%;border:0;background:none;color:var(--g);font-weight:700;margin-top:13px;cursor:pointer}.note{margin-top:15px;padding:10px;border-radius:9px;background:#fff7d9;border:1px solid #ead78a;font-size:12px}
+#app{display:none}.top{height:68px;background:var(--g);color:white;display:flex;justify-content:space-between;align-items:center;padding:0 24px}.top .brand{color:white}.top .brand span{color:var(--y)}.who{display:flex;gap:10px;align-items:center}.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:white;color:var(--g);font-weight:900}
+.layout{display:flex;min-height:calc(100vh - 68px)}aside{width:245px;background:white;border-right:1px solid var(--line);padding:15px}.nav{display:block;width:100%;text-align:left;border:0;background:transparent;padding:12px;border-radius:9px;margin:3px 0;color:#385447;cursor:pointer}.nav.active,.nav:hover{background:#eaf4ed;color:var(--g);font-weight:800}.content{flex:1;padding:25px;max-width:1500px}.sub{color:var(--mut);margin-bottom:20px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.card,.panel{background:white;border:1px solid var(--line);border-radius:15px;padding:18px;box-shadow:0 4px 16px #183a2010}.panel{margin-top:18px}.label{color:var(--mut);font-size:13px}.num{font-size:29px;font-weight:900;margin-top:7px}.toolbar{display:flex;gap:9px;flex-wrap:wrap}.toolbar input,.toolbar select{padding:10px;border:1px solid #ccd9cf;border-radius:9px}table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}th,td{text-align:left;padding:10px;border-bottom:1px solid #edf2ee}th{background:#f5f8f5}.btn{border:0;border-radius:8px;padding:9px 12px;cursor:pointer;font-weight:700}.green{background:var(--g);color:#fff}.gray{background:#eef4ef;color:#315244}.yellow{background:var(--y)}.badge{padding:4px 7px;border-radius:99px;font-size:11px;font-weight:800}.ok{background:#e1f4e7;color:#17643a}.wait{background:#fff3c8;color:#806300}.bad{background:#fde8e6;color:#a52d25}.drop{border:2px dashed #b9ccbd;border-radius:14px;text-align:center;padding:35px}.alert{padding:12px;border-radius:9px;background:#fff7d9;border:1px solid #ead78a;margin-top:12px}
+@media(max-width:900px){aside{width:205px}.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){aside{display:none}.content{padding:14px}.cards{grid-template-columns:1fr}}
+</style></head><body>
+
+<section id="auth" class="auth"><div class="box">
+<div class="brand">MIRANDA <span>DIGITAL</span></div>
+<div id="loginView"><h1>Iniciar sesión</h1><p>Acceso a la plataforma.</p>
+<div class="field"><label>Usuario</label><input id="lu"></div><div class="field"><label>Contraseña</label><input id="lp" type="password"></div>
+<button class="primary" onclick="login()">Ingresar</button><button class="link" onclick="toggleAuth()">Crear mi cuenta</button>
+<div class="note">Administrador inicial: <b>admin</b> / <b>admin123</b>. Cámbialo en producción mediante variables de entorno.</div></div>
+<div id="registerView" class="hidden"><h1>Crear cuenta</h1><p>Tu cuenta quedará pendiente hasta ser aprobada.</p>
+<div class="field"><label>Nombre completo</label><input id="rn"></div><div class="field"><label>Usuario</label><input id="ru"></div><div class="field"><label>Contraseña</label><input id="rp" type="password"></div><div class="field"><label>Cargo</label><input id="rr" placeholder="Supervisor"></div>
+<button class="primary" onclick="register()">Solicitar acceso</button><button class="link" onclick="toggleAuth()">Volver</button></div>
+</div></section>
+
+<section id="app"><header class="top"><div class="brand">MIRANDA <span>DIGITAL</span></div><div class="who"><div><b id="nm"></b><br><small id="role"></small></div><div class="avatar" id="av"></div></div></header>
+<div class="layout"><aside>
+<button class="nav active" data-p="dashboard">🏠 Dashboard</button><button class="nav" data-p="upload">📤 Subir Excel</button><button class="nav" data-p="attendance">🕘 Asistencia</button><button class="nav" data-p="tareo">📋 Tareo</button><button class="nav" data-p="users">👥 Solicitudes <span id="pc"></span></button><button class="nav" data-p="audit">📝 Actividad</button><button class="nav" onclick="logout()">🚪 Salir</button>
+</aside><main class="content">
+<section id="dashboard" class="page"><h1>Dashboard</h1><div class="sub">Información centralizada de Miranda Digital</div><div class="cards"><div class="card"><div class="label">Ingresos</div><div class="num" id="ki">0</div></div><div class="card"><div class="label">Trabajadores</div><div class="num" id="kw">0</div></div><div class="card"><div class="label">Archivos</div><div class="num" id="kf">0</div></div><div class="card"><div class="label">Solicitudes</div><div class="num" id="kp">0</div></div></div>
+<div class="panel"><h3>Ingreso por cultivo</h3><table><thead><tr><th>Cultivo</th><th>Ingresos</th></tr></thead><tbody id="crops"></tbody></table></div></section>
+
+<section id="upload" class="page hidden"><h1>Subir Excel</h1><div class="sub">La carga se guarda en la base de datos y queda asociada al usuario que la realizó.</div><div class="panel"><div class="drop"><b>Selecciona el Excel</b><br><input id="file" type="file" accept=".xlsx,.xls,.csv" onchange="sendFile()"></div><div id="upmsg"></div></div><div class="panel"><h3>Historial</h3><table><thead><tr><th>Archivo</th><th>Tipo</th><th>Registros</th><th>Usuario</th><th>Fecha</th></tr></thead><tbody id="uploadRows"></tbody></table></div></section>
+
+<section id="attendance" class="page hidden"><h1>Asistencia</h1><div class="sub">Consulta de marcaciones importadas.</div><div class="panel"><div class="toolbar"><input id="aq" placeholder="Buscar DNI, nombre o puesto" oninput="loadAttendance()"><select id="ac" onchange="loadAttendance()"><option value="">Todos</option><option>Cebolla</option><option>Vid</option><option>Riego</option><option>Packing</option><option>Otros</option></select></div><table><thead><tr><th>DNI</th><th>Trabajador</th><th>Cultivo</th><th>Puesto</th><th>Ingreso</th></tr></thead><tbody id="attRows"></tbody></table></div></section>
+
+<section id="tareo" class="page hidden"><h1>Tareo</h1><div class="sub">Datos de tareo importados para cruzarlos por DNI.</div><div class="panel"><table><thead><tr><th>DNI</th><th>Trabajador</th><th>Cultivo</th><th>Labor</th><th>Lote</th></tr></thead><tbody id="tarRows"></tbody></table></div></section>
+
+<section id="users" class="page hidden"><h1>Solicitudes de acceso</h1><div class="sub">Solo el administrador puede aprobar o rechazar cuentas.</div><div class="panel"><table><thead><tr><th>Nombre</th><th>Usuario</th><th>Cargo</th><th>Estado</th><th>Acción</th></tr></thead><tbody id="userRows"></tbody></table></div></section>
+
+<section id="audit" class="page hidden"><h1>Actividad</h1><div class="sub">Registro de acciones importantes del sistema.</div><div class="panel"><p>El backend registra login, aprobación/rechazo de usuarios y cargas de Excel en la base de datos.</p></div></section>
+</main></div></section>
+
+<script>
+let me=null;
+async function api(url,opt={}){const r=await fetch(url,{...opt,headers:{...(opt.headers||{}),'Content-Type':opt.body instanceof FormData?undefined:'application/json'}});const d=await r.json();if(!r.ok)throw new Error(d.error||'Error');return d}
+async function login(){try{const d=await api('/api/login',{method:'POST',body:JSON.stringify({username:lu.value,password:lp.value})});enter(d.user)}catch(e){alert(e.message)}}
+async function register(){try{await api('/api/register',{method:'POST',body:JSON.stringify({name:rn.value,username:ru.value,password:rp.value,role:rr.value})});alert('Solicitud enviada. Espera la aprobación del administrador.');toggleAuth()}catch(e){alert(e.message)}}
+function toggleAuth(){loginView.classList.toggle('hidden');registerView.classList.toggle('hidden')}
+function enter(u){me=u;auth.style.display='none';app.style.display='block';nm.textContent=u.name;role.textContent=u.role;av.textContent=u.name[0].toUpperCase();document.querySelector('[data-p=users]').style.display=u.role==='Administrador'?'block':'none';refresh()}
+async function logout(){await api('/api/logout',{method:'POST'});location.reload()}
+document.querySelectorAll('.nav[data-p]').forEach(b=>b.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden'));document.getElementById(b.dataset.p).classList.remove('hidden');if(b.dataset.p==='dashboard')loadDashboard();if(b.dataset.p==='upload')loadUploads();if(b.dataset.p==='attendance')loadAttendance();if(b.dataset.p==='tareo')loadTareo();if(b.dataset.p==='users')loadUsers()});
+async function loadDashboard(){const d=await api('/api/dashboard');ki.textContent=d.ingresos;kw.textContent=d.workers;kf.textContent=d.files;kp.textContent=d.pending;crops.innerHTML=d.crops.map(x=>`<tr><td>${x.crop}</td><td><b>${x.count}</b></td></tr>`).join('')||'<tr><td colspan=2>Sin datos</td></tr>';pc.textContent=d.pending?' ('+d.pending+')':''}
+async function loadUploads(){const d=await api('/api/uploads');uploadRows.innerHTML=d.map(x=>`<tr><td>${x.filename}</td><td>${x.type}</td><td>${x.records}</td><td>${x.uploaded_by}</td><td>${x.uploaded_at}</td></tr>`).join('')||'<tr><td colspan=5>Sin cargas</td></tr>'}
+async function sendFile(){if(!file.files[0])return;const fd=new FormData();fd.append('file',file.files[0]);upmsg.innerHTML='<div class=alert>Procesando...</div>';try{const d=await fetch('/api/upload',{method:'POST',body:fd});const j=await d.json();if(!d.ok)throw new Error(j.error);upmsg.innerHTML=`<div class=alert>✅ ${j.type}: ${j.records} registros procesados.</div>`;loadUploads();loadDashboard()}catch(e){upmsg.innerHTML='<div class=alert>❌ '+e.message+'</div>'}}
+async function loadAttendance(){const d=await api('/api/attendance?q='+encodeURIComponent(aq.value)+'&crop='+encodeURIComponent(ac.value));attRows.innerHTML=d.map(x=>`<tr><td>${x.dni}</td><td>${x.name||''}</td><td>${x.crop}</td><td>${x.position||''}</td><td>${x.entry_time||''}</td></tr>`).join('')||'<tr><td colspan=5>Sin resultados</td></tr>'}
+async function loadTareo(){const d=await api('/api/tareo');tarRows.innerHTML=d.map(x=>`<tr><td>${x.dni||''}</td><td>${x.name||''}</td><td>${x.crop}</td><td>${x.labor||''}</td><td>${x.lot||''}</td></tr>`).join('')||'<tr><td colspan=5>Sin datos</td></tr>'}
+async function loadUsers(){if(me.role!=='Administrador')return;const d=await api('/api/users');userRows.innerHTML=d.map(x=>`<tr><td>${x.name}</td><td>${x.username}</td><td>${x.role}</td><td><span class="badge ${x.status==='approved'?'ok':x.status==='pending'?'wait':'bad'}">${x.status}</span></td><td>${x.status==='pending'?`<button class="btn green" onclick="approve(${x.id})">Permitir</button> <button class="btn gray" onclick="rejectU(${x.id})">Rechazar</button>`:x.username!=='admin'&&x.status==='approved'?`<button class="btn gray" onclick="blockU(${x.id})">Bloquear</button>`:''}</td></tr>`).join('')}
+async function approve(id){await api('/api/users/'+id+'/approve',{method:'POST'});loadUsers();loadDashboard()}
+async function rejectU(id){await api('/api/users/'+id+'/reject',{method:'POST'});loadUsers();loadDashboard()}
+async function blockU(id){await api('/api/users/'+id+'/block',{method:'POST'});loadUsers()}
+async function refresh(){loadDashboard();loadUploads();loadAttendance();loadTareo();if(me.role==='Administrador')loadUsers()}
+(async()=>{const d=await api('/api/me');if(d.user)enter(d.user)})().catch(()=>{});
+</script></body></html>
