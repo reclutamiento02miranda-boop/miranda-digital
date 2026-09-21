@@ -77,7 +77,7 @@ app.use(session({
  resave:false,saveUninitialized:false,
  cookie:{httpOnly:true,sameSite:"lax",secure:process.env.NODE_ENV==="production",maxAge:8*60*60*1000}
 }));
-app.use(express.static(path.join(__dirname,"public")));
+app.use(express.static(__dirname));
 
 const upload=multer({dest:UPLOAD_DIR,limits:{fileSize:25*1024*1024}});
 
@@ -226,5 +226,5 @@ app.post("/api/upload",auth,upload.single("file"),(req,res)=>{
   }
 });
 
-app.get("*",(req,res)=>res.sendFile(path.join(__dirname,"public","index.html")));
+app.get("*",(req,res)=>res.sendFile(path.join(__dirname,"index.html")));
 app.listen(PORT,()=>console.log(`Miranda Digital en http://localhost:${PORT}`));
