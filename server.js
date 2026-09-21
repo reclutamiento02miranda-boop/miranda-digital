@@ -8,7 +8,6 @@ const path=require("path");
 const fs=require("fs");
 
 const app=express();
-const app=express();
 app.set("trust proxy",1);
 const PORT=process.env.PORT||3000;
 const DB_FILE=process.env.ARCHIVO_DB||path.join(__dirname,"miranda.db");
