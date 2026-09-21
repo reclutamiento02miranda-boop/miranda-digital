@@ -9,7 +9,7 @@ const fs=require("fs");
 
 const app=express();
 const PORT=process.env.PORT||3000;
-const DB_FILE=process.env.DB_FILE||path.join(__dirname,"miranda.db");
+const DB_FILE=process.env.ARCHIVO_DB||path.join(__dirname,"miranda.db");
 const UPLOAD_DIR=path.join(__dirname,"uploads");
 fs.mkdirSync(UPLOAD_DIR,{recursive:true});
 
